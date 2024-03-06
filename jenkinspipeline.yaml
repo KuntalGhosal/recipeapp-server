@@ -1,0 +1,73 @@
+pipeline {
+    
+    environment {
+        
+        buildNUMBER = currentBuild.getNumber()
+    }
+    
+    agent any
+    
+    stages {
+        
+        stage ('clone from git-hub') {
+            
+            steps {
+                
+                script {
+                    
+                    checkout scmGit(branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[credentialsId: 'jenkins',
+                    url: 'https://github.com/KuntalGhosal/recipeapp-server.git']])
+                }
+            }
+        }
+        
+        stage ('Build docker image') {
+            
+            steps {
+                
+                script {
+                    
+                    sh 'docker build -t recipe:${buildNUMBER} .'
+                    sh 'docker tag recipe:${buildNUMBER} kuntalghosal/recipe:${buildNUMBER}'
+                }
+            }
+        }
+        
+        stage ('Docker hub login') {
+            
+            steps {
+                
+                script {
+                    
+                    withCredentials([string(credentialsId: 'docker_credentails', variable: 'docker_pwd')]) {
+                    }
+                }
+            }
+        }
+        
+        stage ('Push image Docker-Hub') {
+            
+            steps {
+                
+                script {
+                    
+                    sh 'docker push kuntalghosal/recipe:${buildNUMBER}'
+                }
+            }
+        }
+        
+        stage ('Deploy') {
+            
+            steps {
+                
+                script {
+                    
+                    sh 'docker rm -f recipe || true'
+                    sh 'docker run -d -it --name recipe -p 8000:8000 kuntalghosal/recipe:${buildNUMBER}'
+                }
+            }
+        }
+    }
+}
