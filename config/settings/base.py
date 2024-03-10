@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django_celery_beat'
 ]
 
+ALLOWED_HOST = ['*']
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -85,6 +87,7 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOSTNAME'),
         'PORT': config('DB_PORT', cast=int),
+        
     }
 }
 
