@@ -3,6 +3,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 
+from recipe.scheduledtask import send_scheduled_mail_func
+from .tasks import send_mail_func
+
 from .models import Recipe, RecipeLike
 from .serializers import RecipeLikeSerializer, RecipeSerializer
 from .permissions import IsAuthorOrReadOnly
@@ -22,6 +25,7 @@ class RecipeCreateAPIView(generics.CreateAPIView):
     """
     Create: a recipe
     """
+   
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticated,)
@@ -48,10 +52,15 @@ class RecipeLikeAPIView(generics.CreateAPIView):
 
     def post(self, request, pk):
         recipe = get_object_or_404(Recipe, id=self.kwargs['pk'])
+        
+        recipe_object = Recipe.objects.filter(id=self.kwargs['pk'])
+        author_email =recipe_object[0].author.email or "kuntalg10@gmail.com"
+        print("juhkh",author_email)
         new_like, created = RecipeLike.objects.get_or_create(
             user=request.user, recipe=recipe)
         if created:
             new_like.save()
+            send_mail_func.delay(author_email)
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -65,3 +74,5 @@ class RecipeLikeAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+        
