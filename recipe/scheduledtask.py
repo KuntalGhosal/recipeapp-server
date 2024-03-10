@@ -7,7 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 from decouple import config
 
-from recipe.models import Recipe
+from recipe.models import Recipe, RecipeLike
 
 
 
@@ -21,11 +21,9 @@ def send_scheduled_mail_func(self):
     for user in users:
         to_mail=user.email
         recipe_List = Recipe.objects.filter(author=user)
-        total_likes = 3  # Initialize a counter
-
-        # for recipe in recipe_List:
-        #     like = recipe_List.aggregate(recipelike=Sum('recipelike__count'))['recipelike'] or 0
-            
+        total_likes=0
+        for recipe in recipe_List:
+            total_likes += recipe.get_total_number_of_likes()
         message=f"Congratulations on your culinary success! Your recipes have garnered a total of {total_likes} likes from your admirers. Keep up the fantastic work in the kitchen!"
         send_mail(
                     subject=mail_subject,

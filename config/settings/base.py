@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django_celery_beat'
 ]
 
-ALLOWED_HOST = ['*']
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

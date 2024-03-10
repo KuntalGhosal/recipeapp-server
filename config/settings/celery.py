@@ -19,7 +19,7 @@ app.config_from_object(settings, namespace='CELERY')
 app.conf.beat_schedule = {
     'send-mail-daily-at-3':{
         'task': 'recipe.scheduledtask.send_scheduled_mail_func',
-        'schedule': crontab(hour=15, minute=54),
+        'schedule': crontab(hour=21, minute=5),
     }
 }
 
