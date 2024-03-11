@@ -10,8 +10,8 @@ from decouple import config
 
 @shared_task(bind=True)
 def send_mail_func(self,user):
-    mail_subject="You have new like on recipe"
-    message="Testing mail through celery"
+    mail_subject="New Like on Recipe"
+    message="A notification indicating a new like has been received on a recipe."
     to_mail=user
     from_mail=config('EMAIL_USER')
     send_mail(
